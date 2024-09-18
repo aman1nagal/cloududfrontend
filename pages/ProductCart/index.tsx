@@ -8,21 +8,24 @@ const ProductPage = () => {
   const [totalPrice, setTotalPrice] = useState(0);
   const [exceedsLimit, setExceedsLimit] = useState(false);
   const [customerId, setCustomerId] = useState<any>({});
+  const windoww = typeof window != undefined;
 
   useEffect(() => {
-    const windoww = typeof window != undefined;
     if (windoww) {
       const token = localStorage.getItem("token");
       const userDetails = JSON.parse(localStorage.getItem("authuser"));
-      console.log(userDetails?.userDetails?.customerId);
+      // console.log(userDetails?.userDetails);
       setCustomerId(userDetails?.userDetails?.groupId);
-      // setCustomerId(localStorage.getItem("customerId"));
+      const customerInfo = {
+        userRole: userDetails?.userDetails?.userRole,
+        purchaseLimit: userDetails?.userDetails?.purchaseLimit,
+      };
+      setCustomer(customerInfo);
       if (!token) {
         window.location.href = "/login";
       }
     }
   }, []);
-  console.log(customerId, "customerId ");
 
   const { data: products } = useGetProductByCustomerNameQuery(
     {
@@ -34,13 +37,7 @@ const ProductPage = () => {
   );
 
   useEffect(() => {
-    const fetchCustomerData = async () => {
-      const customerInfo = {
-        userRole: "Premium",
-        purchaseLimit: 2000,
-      };
-      setCustomer(customerInfo);
-    };
+    const fetchCustomerData = async () => {};
     fetchCustomerData();
   }, [customerId]);
 
@@ -62,11 +59,11 @@ const ProductPage = () => {
         header: "Product Name",
         accessorKey: "productName",
       },
-      // {
-      //   header: "Price",
-      //   accessorKey: "price",
-      //   cell: (info) => `$${info?.getValue()?.toFixed(2)}`,
-      // },
+      {
+        header: "Price",
+        accessorKey: "price",
+        cell: (info) => `$${info?.getValue()}`,
+      },
       {
         header: "Quantity",
         accessorKey: "quantity",

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import CreateGroupForm from "../../Components/CreateGroupForm";
 import { Table } from "../../Components/Table/Table";
 import { usePopper } from "react-popper";
@@ -6,9 +6,82 @@ import OptionPopup from "../../Components/OptionPopup";
 import { Action } from "../../Components/Table/Icons";
 import { useListAllCategoryQuery } from "../../slices/auth";
 
+// ActionCell component for the "Action" column
+const ActionCell = ({ row, setDataForUpdateCategory, setOpenForm }) => {
+  const refElement = useRef();
+  const popElement = useRef();
+  const [showFilter, setShowFilter] = useState(false);
+
+  const { styles, attributes } = usePopper(
+    refElement.current,
+    popElement.current,
+    {
+      placement: showFilter ? "left-start" : "auto",
+      strategy: "fixed",
+      modifiers: [
+        {
+          name: "preventOverflow",
+          options: {
+            padding: 16,
+          },
+        },
+        {
+          name: "flip",
+          options: {
+            fallbackPlacements: [
+              "bottom-start",
+              "bottom-end",
+              "top-start",
+              "top-end",
+              "left-start",
+              "left-end",
+              "right-start",
+              "right-end",
+            ],
+          },
+        },
+      ],
+    }
+  );
+
+  const viewEdit = () => {
+    setDataForUpdateCategory(row.original);
+    setOpenForm(true);
+    setShowFilter(false);
+  };
+
+  const actions = [{ text: "Edit", action: () => viewEdit() }];
+
+  const Optionpopup = () => (
+    <OptionPopup actions={actions} hideModal={() => setShowFilter(false)} />
+  );
+
+  return (
+    <div>
+      <button
+        ref={refElement}
+        onClick={() => {
+          setShowFilter(!showFilter);
+        }}
+      >
+        <Action className="text-gray-o-480" />
+      </button>
+      <div
+        ref={popElement}
+        className="z-30 absolute"
+        style={styles.popper}
+        {...attributes.popper}
+      >
+        {showFilter && <Optionpopup />}
+      </div>
+    </div>
+  );
+};
+
 const CategoryPage = () => {
   const { data } = useListAllCategoryQuery({});
   const [dataForUpdateCategory, setDataForUpdateCategory] = useState(null);
+  const [openForm, setOpenForm] = useState(false);
 
   const columns = useMemo(
     () => [
@@ -19,99 +92,24 @@ const CategoryPage = () => {
       {
         header: "Product Counts",
         accessorKey: "productCount",
-        cell: ({ row }) => {
-          return <div className="">{row?.original?.productIds.length}</div>;
-        },
+        cell: ({ row }) => <div>{row?.original?.productIds.length}</div>,
       },
       {
         header: "Action",
         accessorKey: "id",
         disableSortBy: true,
-        cell: ({ row }) => {
-          const refElement = useRef();
-          const popElement = useRef();
-          const [showFilter, setShowFilter] = useState(false);
-
-          const { styles, attributes } = usePopper(
-            refElement.current,
-            popElement.current,
-            {
-              placement: showFilter ? "left-start" : "auto",
-              strategy: "fixed",
-              modifiers: [
-                {
-                  name: "preventOverflow",
-                  options: {
-                    padding: 16,
-                  },
-                },
-                {
-                  name: "flip",
-                  options: {
-                    fallbackPlacements: [
-                      "bottom-start",
-                      "bottom-end",
-                      "top-start",
-                      "top-end",
-                      "left-start",
-                      "left-end",
-                      "right-start",
-                      "right-end",
-                    ],
-                  },
-                },
-              ],
-            }
-          );
-
-          const viewEdit = () => {
-            setDataForUpdateCategory(row.original);
-
-            setOpenForm(true);
-            setShowFilter(false);
-          };
-          const actions = [{ text: "Edit", action: () => viewEdit() }];
-
-          const Optionpopup = () => (
-            <OptionPopup
-              actions={actions}
-              hideModal={() => setShowFilter(false)}
-            />
-          );
-
-          return (
-            <div className="">
-              <button
-                ref={refElement}
-                onClick={() => {
-                  setShowFilter(!showFilter);
-                }}
-              >
-                <Action className="text-gray-o-480" />
-              </button>
-              <div
-                ref={popElement}
-                className="z-30 absolute"
-                style={styles.popper}
-                {...attributes.popper}
-              >
-                {showFilter && <Optionpopup />}
-              </div>
-            </div>
-          );
-        },
+        cell: ({ row }) => (
+          <ActionCell
+            row={row}
+            setDataForUpdateCategory={setDataForUpdateCategory}
+            setOpenForm={setOpenForm}
+          />
+        ),
       },
     ],
     []
   );
-  const [openForm, setOpenForm] = useState(false);
-  const products = [
-    { groupName: "Electronics", productCount: 3 },
-    { groupName: "Accessories", productCount: 2 },
-    { groupName: "Mobile Devices", productCount: 2 },
-    { groupName: "Audio", productCount: 1 },
-    { groupName: "Office Supplies", productCount: 5 },
-  ];
+
   return (
     <>
       <div className="mt-2">
@@ -122,14 +120,13 @@ const CategoryPage = () => {
             setDataForUpdateCategory={setDataForUpdateCategory}
           />
         )}
-        <div className="flex flex-col items-end  mb-3 mt-4 mr-10 ">
+        <div className="flex flex-col items-end mb-3 mt-4 mr-10">
           <button
-            className="text-white mt-2  mr-10 text-sm bg-primary-o-600 py-0 px-0 rounded-full"
+            className="text-white mt-2 mr-10 text-sm bg-primary-o-600 py-0 px-0 rounded-full"
             onClick={() => {
               setOpenForm(true);
             }}
           >
-            {/* {buttonName} */}
             <svg
               width="32"
               height="32"

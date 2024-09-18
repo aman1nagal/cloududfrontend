@@ -1,10 +1,9 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import CreateGroupForm from "../../Components/CreateGroupForm";
+import React, { useMemo, useState, useRef } from "react";
+import CreateCustomerForm from "../../Components/CreateCustomerForm/CreateCustomerForm";
 import { Table } from "../../Components/Table/Table";
 import { usePopper } from "react-popper";
 import OptionPopup from "../../Components/OptionPopup";
 import { Action } from "../../Components/Table/Icons";
-import CreateCustomerForm from "../../Components/CreateCustomerForm/CreateCustomerForm";
 import { useGetallCustomerQuery } from "../../slices/auth";
 
 const CustomerPage = () => {
@@ -30,126 +29,12 @@ const CustomerPage = () => {
         header: "Purchase Limit",
         accessorKey: "purchaseLimit",
       },
-      {
-        header: "Action",
-        accessorKey: "id",
-        disableSortBy: true,
-        cell: ({ row }) => {
-          const refElement = useRef();
-          const popElement = useRef();
-          const [showFilter, setShowFilter] = useState(false);
-
-          const { styles, attributes } = usePopper(
-            refElement.current,
-            popElement.current,
-            {
-              placement: showFilter ? "left-start" : "auto",
-              strategy: "fixed",
-              modifiers: [
-                {
-                  name: "preventOverflow",
-                  options: {
-                    padding: 16,
-                  },
-                },
-                {
-                  name: "flip",
-                  options: {
-                    fallbackPlacements: [
-                      "bottom-start",
-                      "bottom-end",
-                      "top-start",
-                      "top-end",
-                      "left-start",
-                      "left-end",
-                      "right-start",
-                      "right-end",
-                    ],
-                  },
-                },
-              ],
-            }
-          );
-
-          const viewEdit = () => {
-            setOpenForm(true);
-            setShowFilter(false);
-          };
-          const actions = [{ text: "Edit", action: () => viewEdit() }];
-
-          const Optionpopup = () => (
-            <OptionPopup
-              actions={actions}
-              hideModal={() => setShowFilter(false)}
-            />
-          );
-
-          return (
-            <div className="">
-              <button
-                ref={refElement}
-                onClick={() => {
-                  setShowFilter(!showFilter);
-                }}
-              >
-                <Action className="text-gray-o-480" />
-              </button>
-              <div
-                ref={popElement}
-                className="z-30 absolute"
-                style={styles.popper}
-                {...attributes.popper}
-              >
-                {showFilter && <Optionpopup />}
-              </div>
-            </div>
-          );
-        },
-      },
     ],
     []
   );
 
   const { data } = useGetallCustomerQuery({});
-
   const [openForm, setOpenForm] = useState(false);
-  const customers = [
-    {
-      customerId: "C001",
-      customerName: "John Doe",
-      groupName: "Premium",
-      userRole: "Admin",
-      purchaseLimit: "$5000",
-    },
-    {
-      customerId: "C002",
-      customerName: "Jane Smith",
-      groupName: "Standard",
-      userRole: "User",
-      purchaseLimit: "$1000",
-    },
-    {
-      customerId: "C003",
-      customerName: "Michael Green",
-      groupName: "Premium",
-      userRole: "Admin",
-      purchaseLimit: "$3000",
-    },
-    {
-      customerId: "C004",
-      customerName: "Sarah Brown",
-      groupName: "Standard",
-      userRole: "User",
-      purchaseLimit: "$1500",
-    },
-    {
-      customerId: "C005",
-      customerName: "Emily White",
-      groupName: "Gold",
-      userRole: "Moderator",
-      purchaseLimit: "$2000",
-    },
-  ];
 
   return (
     <>
@@ -160,12 +45,10 @@ const CustomerPage = () => {
             createCustomer={""}
           />
         )}
-        <div className="flex flex-col items-end  mb-3 mt-4 mr-10 ">
+        <div className="flex flex-col items-end mb-3 mt-4 mr-10">
           <button
-            className="text-white mt-2  mr-10 text-sm bg-primary-o-600 py-0 px-0 rounded-full"
-            onClick={() => {
-              setOpenForm(true);
-            }}
+            className="text-white mt-2 mr-10 text-sm bg-primary-o-600 py-0 px-0 rounded-full"
+            onClick={() => setOpenForm(true)}
           >
             <svg
               width="32"
